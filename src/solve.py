@@ -29,9 +29,18 @@ def run_conversation(word_problem):
         function_arguments = json.loads(message["function_call"]["arguments"])
 
         if function_name == "use_formula":
-            steps.append(function_arguments)
+            display_values = [function_arguments["formula"]]
+            for value in function_arguments["values"]:
+                display_values.append(value["variable"] + " = " + value["value"])
+            steps.append({
+                "text": "Use the formula " + function_arguments["friendly_name"] + ".",
+                "math": display_values
+            })
 
             result = functions.use_formula(function_arguments["formula"], function_arguments["values"])
-            steps.append(result)
+            steps.append({
+                "text": "Final answer",
+                "math": [result]
+            })
 
     return steps

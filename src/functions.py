@@ -68,8 +68,7 @@ def use_formula(formula, values):
 
     for value in values:
         parsed = parsed.subs(parse_latex(value["variable"]), parse_latex(value["value"]))
-    print(parsed.evalf())
-    return sympy.printing.latex(parsed.evalf())
+    return sympy.printing.latex(parsed.doit())
 
 
 def parse_expr(expression):
