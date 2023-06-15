@@ -1,67 +1,37 @@
 import openai
-import sympy.parsing.mathematica as parser
 import json
+import functions
 import dotenv
 import os
 dotenv.load_dotenv()
 
-functions = [
-    {
-        "name": "solve",
-        "description": "Solves a mathematical expression.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "problem": {
-                    "type": "string",
-                    "description": "The expression to simplify, in Mathematica expression format.",
-                    "example": "D[x^2, x]"
-                }
-            }
-        }
-    }
-]
-
-
-def simplify(problem):
-    parsed = parser.parse_mathematica(problem)
-    return str(parsed.evalf())
-
 
 def run_conversation(word_problem):
+    steps = []
+
     openai.api_key = os.getenv("OPENAI_API_KEY")
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo-0613",
         messages=[
-            {"role": "system", "content": "Solve the problem provided by the user with step by step instructions."},
+            {"role": "system", "content": "Solve the problem provided by the user using a formula."},
             {"role": "user", "content": word_problem},
         ],
-        functions=functions,
+        functions=functions.functions,
         function_call="auto",
+        temperature=0.2,
     )
 
     message = response["choices"][0]["message"]
+    print(message["function_call"]["arguments"])
 
     if message.get("function_call"):
         function_name = message["function_call"]["name"]
-        function_args = json.loads(message["function_call"]["arguments"])
+        function_arguments = json.loads(message["function_call"]["arguments"])
 
-        function_response = simplify(function_args["problem"])
-        print(function_response)
+        if function_name == "use_formula":
+            steps.append(function_arguments)
 
-        second_response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo-0613",
-            messages=[
-                {"role": "system", "content": "Solve the problem provided by the user with step by step instructions."},
-                {"role": "user", "content": word_problem},
-                message,
-                {"role": "function", "name": function_name, "content": function_response}
-            ],
-            functions=functions,
-            function_call="auto",
-        )
+            result = functions.use_formula(function_arguments["formula"], function_arguments["values"])
+            steps.append(result)
 
-        return second_response["choices"][0]["message"]["content"]
-    else:
-        return message["content"]
-
+    return steps

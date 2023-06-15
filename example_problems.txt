@@ -1,0 +1,1 @@
+A region R is bounded above by the graph of y=\sin x and below by the graph of y=\sin^{3}x for 0\le x\le\frac{\pi}{2}. Rotating region R about the vertical line x\ =\ \frac{\pi}{2} generates a solid of revolution S. Find an expression for the volume of S using the shell method.
