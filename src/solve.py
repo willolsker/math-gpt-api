@@ -37,9 +37,15 @@ def run_conversation(word_problem):
                 "math": display_values
             })
 
+            result = functions.substitute_values(function_arguments["formula"], function_arguments["values"])
+            steps.append({
+                "text": "Substitute the values into the formula.",
+                "math": [result]
+            })
+
             result = functions.use_formula(function_arguments["formula"], function_arguments["values"])
             steps.append({
-                "text": "Final answer",
+                "text": "Simplify.",
                 "math": [result]
             })
 

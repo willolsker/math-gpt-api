@@ -71,5 +71,13 @@ def use_formula(formula, values):
     return sympy.printing.latex(parsed.doit())
 
 
+def substitute_values(formula, values):
+    parsed = parse_latex(formula)
+
+    for value in values:
+        parsed = parsed.subs(parse_latex(value["variable"]), parse_latex(value["value"]))
+    return sympy.printing.latex(parsed)
+
+
 def parse_expr(expression):
     return parse_latex(expression)
